@@ -1,0 +1,335 @@
+.chat-container {
+    margin: 20px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(41, 128, 185, 0.12);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 180px);
+    border: 1px solid rgba(41, 128, 185, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加科技感装饰 */
+.chat-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+    opacity: 0.7;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.95) 100%);
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(41, 128, 185, 0.05);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3498db, #2980b9);
+    border-radius: 3px;
+}
+
+.message {
+    margin-bottom: 24px;
+    display: flex;
+    animation: messageAppear 0.3s ease-out;
+    position: relative;
+    align-items: flex-start;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+/* 添加头像样式 */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #fff;
+}
+
+.message.bot .avatar {
+    background: url('/static/images/bot-avatar.png') center/cover;
+}
+
+.message.user .avatar {
+    background: #3498db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* 修改消息气泡样式 */
+.message-content {
+    max-width: calc(70% - 64px);
+    padding: 16px 20px;
+    border-radius: 18px;
+    line-height: 1.6;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.message.user .message-content {
+    margin-right: 0;
+    border-top-right-radius: 4px;
+}
+
+.message.bot .message-content {
+    margin-left: 0;
+    border-top-left-radius: 4px;
+}
+
+/* 添加小尾巴 */
+.message-content::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+}
+
+.message.bot .message-content::before {
+    left: -5px;
+    background: #ffffff;
+    border-left: 1px solid rgba(41, 128, 185, 0.08);
+    border-bottom: 1px solid rgba(41, 128, 185, 0.08);
+}
+
+.message.user .message-content::before {
+    right: -5px;
+    background: #3498db;
+}
+
+/* 修改时间戳位置 */
+.message::after {
+    bottom: -16px;
+    font-size: 11px;
+    color: #95a5a6;
+    opacity: 0.8;
+}
+
+.message.user::after {
+    right: 52px;
+}
+
+.message.bot::after {
+    left: 52px;
+}
+
+/* 添加打字动画效果 */
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 添加悬停效果 */
+.message:hover .message-content {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message.user::after {
+    right: 0;
+}
+
+.message.bot::after {
+    left: 0;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 16px 20px;
+    border-radius: 18px;
+    line-height: 1.6;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.message.user .message-content {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    color: white;
+    box-shadow: 0 3px 12px rgba(41, 128, 185, 0.2);
+    border-bottom-right-radius: 4px;
+}
+
+.message.bot .message-content {
+    background: #ffffff;
+    color: #2c3e50;
+    font-size: 15px;
+    border: 1px solid rgba(41, 128, 185, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border-bottom-left-radius: 4px;
+}
+
+/* 医疗相关样式优化 */
+.message.bot .message-content strong {
+    color: #e74c3c;
+    font-weight: 600;
+    padding: 0 2px;
+    background: rgba(231, 76, 60, 0.08);
+    border-radius: 3px;
+}
+
+.message.bot .message-content em {
+    color: #2980b9;
+    font-style: normal;
+    background: rgba(41, 128, 185, 0.08);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.message.bot .message-content blockquote {
+    border-left: 4px solid #3498db;
+    background: rgba(52, 152, 219, 0.05);
+    margin: 1em 0;
+    padding: 1em 1.2em;
+    border-radius: 0 8px 8px 0;
+    position: relative;
+}
+
+.chat-input {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(41, 128, 185, 0.08);
+    display: flex;
+    gap: 16px;
+    border-radius: 0 0 20px 20px;
+    backdrop-filter: blur(10px);
+}
+
+.chat-input textarea {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid rgba(41, 128, 185, 0.15);
+    border-radius: 12px;
+    resize: none;
+    height: 60px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    background: white;
+}
+
+.chat-input textarea:focus {
+    border-color: #3498db;
+    box-shadow: 0 2px 16px rgba(41, 128, 185, 0.12);
+    outline: none;
+}
+
+.chat-input button {
+    padding: 0 28px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(41, 128, 185, 0.2);
+}
+
+.chat-input button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(41, 128, 185, 0.25);
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.chat-input button:active {
+    transform: translateY(1px);
+}
+
+/* 加载动画优化 */
+.typing-indicator {
+    display: flex;
+    gap: 6px;
+    padding: 12px 0;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* 医疗专业术语和提示样式 */
+.medical-term {
+    color: #2980b9;
+    border-bottom: 1px dashed rgba(41, 128, 185, 0.4);
+    cursor: help;
+    position: relative;
+    padding: 0 2px;
+}
+
+.important-notice {
+    background: rgba(231, 76, 60, 0.08);
+    border-left: 4px solid #e74c3c;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 6px;
+    position: relative;
+}
+
+.diagnosis-suggestion {
+    background: rgba(46, 204, 113, 0.08);
+    border-left: 4px solid #2ecc71;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 6px;
+    position: relative;
+}
+
+/* 禁用状态样式 */
+.chat-input textarea:disabled {
+    background: rgba(236, 240, 241, 0.5);
+    cursor: not-allowed;
+}
+
+.chat-input button:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+} 

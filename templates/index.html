@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧养老系统后台管理</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar-overlay"></div>
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>智慧养老系统</h2>
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav>
+                {{ nav_content|safe }}
+            </nav>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>欢迎使用智慧养老系统</h1>
+                    <div class="user-info">
+                        <span>管理员</span>
+                        <a href="#" class="logout">退出</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <h3>在院老人</h3>
+                    <p>150人</p>
+                </div>
+                <div class="card">
+                    <h3>护工人数</h3>
+                    <p>45人</p>
+                </div>
+                <div class="card">
+                    <h3>今日就餐</h3>
+                    <p>142人</p>
+                </div>
+                <div class="card">
+                    <h3>待处理事项</h3>
+                    <p>8项</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.querySelector('.toggle-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        // 侧边栏折叠功能
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        });
+
+        // 点击遮罩层关闭侧边栏
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // 子菜单展开/收起功能
+        const subMenus = document.querySelectorAll('.has-submenu');
+        
+        subMenus.forEach(menu => {
+            menu.querySelector('a').addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 在折叠状态下点击父级菜单时不展开子菜单
+                if (sidebar.classList.contains('collapsed') && window.innerWidth > 768) {
+                    return;
+                }
+                
+                menu.classList.toggle('active');
+                const subMenu = menu.querySelector('.submenu');
+                if (subMenu) {
+                    subMenu.classList.toggle('active');
+                }
+            });
+        });
+
+        // 响应式处理
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
+        
+        function handleScreenChange(e) {
+            if (e.matches) {
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.remove('collapsed');
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        mediaQuery.addListener(handleScreenChange);
+        handleScreenChange(mediaQuery);
+    });
+    </script>
+</body>
+</html> 

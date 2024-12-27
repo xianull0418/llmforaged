@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能问诊 - 智慧养老系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_chat.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar-overlay"></div>
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>智慧养老系统</h2>
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav>
+                <!-- 复制 index.html 的导航栏内容 -->
+                {{ nav_content|safe }}
+            </nav>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>智能问诊</h1>
+                    <div class="user-info">
+                        <span>管理员</span>
+                        <a href="#" class="logout">退出</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <!-- 添加机器人头像 -->
+                        <div class="avatar"></div>
+                        <div class="message-content">
+                            您好！我是智能医疗助手，请描述您的症状或健康问题，我会为您提供专业的建议。
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <textarea id="userInput" placeholder="请输入您的问题..."></textarea>
+                    <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 复制 index.html 的侧边栏 JavaScript 代码
+        const toggleBtn = document.querySelector('.toggle-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        // 侧边栏折叠功能
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        });
+
+        // 聊天功能
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        
+        // 生成会话ID
+        const sessionId = 'session_' + Date.now();
+
+        // 配置 marked
+        marked.setOptions({
+            breaks: true,  // 支持回车换行
+            gfm: true,     // 支持 GitHub 风格的 Markdown
+            highlight: function (code, language) {
+                if (language && hljs.getLanguage(language)) {
+                    try {
+                        return hljs.highlight(code, { language }).value;
+                    } catch (err) {}
+                }
+                return code;
+            }
+        });
+
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            // 添加头像
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            if (isUser) {
+                avatar.textContent = '用';  // 或者使用用户的首字母/昵称
+            }
+            messageDiv.appendChild(avatar);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (isUser) {
+                contentDiv.textContent = message;
+            } else {
+                contentDiv.innerHTML = marked.parse(message);
+                contentDiv.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                });
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            
+            // 添加时间戳
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            messageDiv.setAttribute('data-time', timeStr);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // 禁用输入和发送按钮
+            userInput.disabled = true;
+            sendButton.disabled = true;
+
+            // 添加用户消息
+            addMessage(message, true);
+            userInput.value = '';
+
+            // 显示加载指示器
+            const loadingIndicator = showLoadingIndicator();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        session_id: sessionId
+                    })
+                });
+
+                const data = await response.json();
+                
+                // 移除加载指示器
+                loadingIndicator.remove();
+
+                if (data.status === 'success') {
+                    addMessage(data.answer);
+                } else {
+                    addMessage(data.answer || '抱歉，服务出现错误，请稍后再试。');
+                }
+            } catch (error) {
+                // 移除加载指示器
+                loadingIndicator.remove();
+                addMessage('网络连接出现问题，请检查网络后重试。');
+            } finally {
+                // 重新启用输入和发送按钮
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // 添加加载状态指示器
+        function showLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot loading';
+            loadingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return loadingDiv;
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    });
+    </script>
+</body>
+</html> 
